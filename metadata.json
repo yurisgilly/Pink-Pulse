@@ -1,0 +1,6 @@
+{
+  "name": "Pink Pulse ERP",
+  "description": "Interface SaaS ERP e Catálogo Público VIP de alto padrão para controle de estoque, vendas, vitrine digital e atendimento via WhatsApp.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

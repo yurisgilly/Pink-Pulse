@@ -1,0 +1,26 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@800&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+@layer utilities {
+  .font-display {
+    font-family: 'Syne', sans-serif;
+  }
+  .font-mono-custom {
+    font-family: 'Space Mono', monospace;
+  }
+}
+
+:root {
+  --bg: #111113;
+  --ink: #f2efeb;
+  --accent: #E6007E;
+  --ink-faint: rgba(242, 239, 235, 0.1);
+}
+
+body {
+  background-color: #111113;
+  color: #f2efeb;
+  font-family: 'Inter', sans-serif;
+}
+
+
