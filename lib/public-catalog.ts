@@ -10,9 +10,9 @@ export const DEFAULT_PUBLIC_SETTINGS: PublicCatalogSettings = {
   storeName: 'Pink Pulse',
   tagline: 'Desejo • Prazer • Conexão.',
   description: 'Produtos selecionados com qualidade, discrição e segurança. Entrega totalmente discreta.',
-  whatsappNumber: '24999600366',
+  whatsappNumber: '24999092402',
   whatsappMessageTemplate: 'Olá!\n\nTenho interesse no seguinte produto:\n\nNome:\n{nome}\n\nPreço:\nR$ {preco}\n\nGostaria de fazer meu pedido.',
-  instagramUrl: 'https://instagram.com/pinkpulseoficial',
+  instagramUrl: 'https://instagram.com/lojapinkpulse',
   emailContact: 'contato@pinkpulse.com.br',
   banner: {
     enabled: true,
@@ -44,7 +44,11 @@ export function getPublicCatalogSettings(): PublicCatalogSettings {
     try {
       const saved = localStorage.getItem(SETTINGS_KEY);
       if (saved) {
-        return { ...DEFAULT_PUBLIC_SETTINGS, ...JSON.parse(saved) };
+        const parsed = JSON.parse(saved);
+        if (parsed.whatsappNumber === '24999600366' || parsed.whatsappNumber === '5511999998888') {
+          parsed.whatsappNumber = '24999092402';
+        }
+        return { ...DEFAULT_PUBLIC_SETTINGS, ...parsed };
       }
     } catch (e) {
       console.error('Error loading public catalog settings:', e);
@@ -231,7 +235,7 @@ export async function fetchPublicCategories(): Promise<PublicCategory[]> {
 export function generateWhatsAppPurchaseUrl(
   productName: string, 
   price: number, 
-  phone: string = '24999600366',
+  phone: string = '24999092402',
   template?: string
 ): string {
   const cleanPhone = phone.replace(/\D/g, '');

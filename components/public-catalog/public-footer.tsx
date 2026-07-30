@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import logoImg from '@/assets/sem coraçao.png';
-import { MessageCircle, Instagram, Mail, Lock, ShieldCheck, Heart } from 'lucide-react';
+import { MessageCircle, Instagram, Lock, ShieldCheck, Heart } from 'lucide-react';
 import { PublicCatalogSettings } from '@/types/public-catalog.types';
 
 interface PublicFooterProps {
@@ -12,7 +12,7 @@ interface PublicFooterProps {
 }
 
 export const PublicFooter: React.FC<PublicFooterProps> = ({ settings }) => {
-  const whatsappNumber = settings.whatsappNumber || '24999600366';
+  const whatsappNumber = settings.whatsappNumber || '24999092402';
 
   return (
     <footer className="bg-[#0A070B] border-t border-white/10 text-white pt-12 pb-8 mt-16 relative overflow-hidden">
@@ -25,11 +25,11 @@ export const PublicFooter: React.FC<PublicFooterProps> = ({ settings }) => {
           
           {/* Brand Info */}
           <div className="md:col-span-2 space-y-4">
-            <div className="flex items-center">
+            <div className="flex items-center justify-center md:justify-start">
               <Image 
                 src={logoImg} 
                 alt="Pink Pulse Logo" 
-                className="w-[170px] h-auto object-contain drop-shadow-[0_0_12px_rgba(236,14,120,0.4)] -mt-[18px] -ml-[11px]"
+                className="w-[170px] h-auto object-contain drop-shadow-[0_0_12px_rgba(236,14,120,0.4)] -mt-[18px] ml-0 md:-ml-[11px]"
                 referrerPolicy="no-referrer"
               />
             </div>
@@ -69,7 +69,7 @@ export const PublicFooter: React.FC<PublicFooterProps> = ({ settings }) => {
                   className="flex items-center gap-2 hover:text-[#FF4FA0] transition-colors"
                 >
                   <MessageCircle className="w-4 h-4 text-emerald-400" />
-                  <span>WhatsApp: (24) 99960-0366</span>
+                  <span>WhatsApp: (24) 99909-2402</span>
                 </a>
               </li>
 
@@ -82,19 +82,7 @@ export const PublicFooter: React.FC<PublicFooterProps> = ({ settings }) => {
                     className="flex items-center gap-2 hover:text-[#FF4FA0] transition-colors"
                   >
                     <Instagram className="w-4 h-4 text-[#FF4FA0]" />
-                    <span>@pinkpulseoficial</span>
-                  </a>
-                </li>
-              )}
-
-              {settings.emailContact && (
-                <li>
-                  <a
-                    href={`mailto:${settings.emailContact}`}
-                    className="flex items-center gap-2 hover:text-[#FF4FA0] transition-colors"
-                  >
-                    <Mail className="w-4 h-4 text-blue-400" />
-                    <span>{settings.emailContact}</span>
+                    <span>@lojapinkpulse</span>
                   </a>
                 </li>
               )}

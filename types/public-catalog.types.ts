@@ -29,7 +29,7 @@ export interface PublicCatalogSettings {
   storeName: string;
   tagline: string;
   description: string;
-  whatsappNumber: string; // e.g. "24999600366"
+  whatsappNumber: string; // e.g. "24999092402"
   whatsappMessageTemplate: string;
   instagramUrl: string;
   emailContact: string;

@@ -14,7 +14,7 @@ interface PublicProductCardProps {
 
 export const PublicProductCard: React.FC<PublicProductCardProps> = ({
   product,
-  whatsappNumber = '24999600366',
+  whatsappNumber = '24999092402',
   whatsappTemplate
 }) => {
   const formattedPrice = `R$ ${product.sell_price.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;

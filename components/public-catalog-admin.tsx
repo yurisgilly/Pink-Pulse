@@ -219,7 +219,7 @@ export const PublicCatalogAdmin: React.FC = () => {
                   type="text"
                   value={settings.whatsappNumber}
                   onChange={e => setSettings(prev => ({ ...prev, whatsappNumber: e.target.value }))}
-                  placeholder="24999600366"
+                  placeholder="24999092402"
                   className="w-full bg-[#111113] border border-white/10 focus:border-[#EC0E78] rounded-[14px] p-3 text-white outline-none"
                 />
               </div>

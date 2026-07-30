@@ -8,35 +8,37 @@ interface FloatingWhatsappProps {
 }
 
 export function FloatingWhatsapp({ 
-  whatsappNumber = '5511999998888',
+  whatsappNumber = '24999092402',
   customMessage = 'Olá! Gostaria de tirar uma dúvida sobre os produtos da Pink Pulse.' 
 }: FloatingWhatsappProps) {
   const [isHovered, setIsHovered] = useState(false);
   const cleanNumber = whatsappNumber.replace(/\D/g, '');
-  const targetUrl = `https://wa.me/55${cleanNumber}?text=${encodeURIComponent(customMessage)}`;
+  const fullPhone = cleanNumber.startsWith('55') ? cleanNumber : `55${cleanNumber}`;
+  const targetUrl = `https://wa.me/${fullPhone}?text=${encodeURIComponent(customMessage)}`;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3">
-      {/* Tooltip / Discreet Label */}
-      <div
-        className={`transition-all duration-300 transform ${
-          isHovered ? 'opacity-100 translate-x-0 scale-100' : 'opacity-0 translate-x-4 scale-95 pointer-events-none'
-        } bg-[#18111A]/95 border border-emerald-500/30 text-white px-3.5 py-2 rounded-2xl shadow-xl backdrop-blur-md flex items-center gap-2 text-xs font-semibold`}
-      >
-        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-        <span className="tracking-wide">Atendimento WhatsApp</span>
-      </div>
+    <div className="fixed bottom-6 right-6 z-50">
+      <div className="relative flex items-center justify-center">
+        {/* Tooltip / Discreet Label */}
+        <div
+          className={`absolute right-full mr-3 whitespace-nowrap transition-all duration-300 transform ${
+            isHovered ? 'opacity-100 translate-x-0 scale-100' : 'opacity-0 translate-x-4 scale-95 pointer-events-none'
+          } bg-[#18111A]/95 border border-emerald-500/30 text-white px-3.5 py-2 rounded-2xl shadow-xl backdrop-blur-md flex items-center gap-2 text-xs font-semibold`}
+        >
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="tracking-wide">Atendimento WhatsApp</span>
+        </div>
 
-      {/* Button with Elegant Pulse Animation */}
-      <a
-        href={targetUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        aria-label="Atendimento via WhatsApp"
-        className="relative group flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-tr from-[#0B1A10] via-[#102B19] to-[#25D366]/20 border border-emerald-500/40 text-emerald-400 shadow-[0_8px_25px_rgba(37,211,102,0.25)] hover:shadow-[0_12px_35px_rgba(37,211,102,0.45)] hover:border-emerald-400 hover:scale-110 active:scale-95 transition-all duration-300 cursor-pointer"
-      >
+        {/* Button with Elegant Pulse Animation */}
+        <a
+          href={targetUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          aria-label="Atendimento via WhatsApp"
+          className="relative group flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-tr from-[#0B1A10] via-[#102B19] to-[#25D366]/20 border border-emerald-500/40 text-emerald-400 shadow-[0_8px_25px_rgba(37,211,102,0.25)] hover:shadow-[0_12px_35px_rgba(37,211,102,0.45)] hover:border-emerald-400 hover:scale-110 active:scale-95 transition-all duration-300 cursor-pointer"
+        >
         {/* Subtle glowing aura */}
         <span className="absolute -inset-1 rounded-full bg-emerald-500/20 group-hover:bg-emerald-500/35 blur-md transition-all duration-300 animate-pulse" />
 
@@ -52,5 +54,6 @@ export function FloatingWhatsapp({
         </svg>
       </a>
     </div>
-  );
+  </div>
+);
 }
