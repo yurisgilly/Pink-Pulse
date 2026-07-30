@@ -38,10 +38,10 @@ export const PublicFilterBar: React.FC<PublicFilterBarProps> = ({
   const activeCategory = categories.find(c => c.slug === selectedCategorySlug);
 
   return (
-    <div className="bg-[#18111A] border border-white/10 rounded-[22px] p-3.5 sm:p-4.5 flex flex-wrap items-center justify-between gap-3 shadow-lg relative">
+    <div className="bg-[#18111A] border border-white/10 rounded-[22px] p-3.5 sm:p-4.5 flex flex-wrap items-center justify-center sm:justify-between gap-3 shadow-lg relative">
       
       {/* Title */}
-      <div className="flex items-center gap-2.5">
+      <div className="flex items-center justify-center sm:justify-start gap-2.5">
         <div className="p-2 bg-[#EC0E78]/20 text-[#FF4FA0] rounded-xl border border-[#EC0E78]/30 shrink-0">
           <Package className="w-4 h-4" />
         </div>
@@ -51,7 +51,7 @@ export const PublicFilterBar: React.FC<PublicFilterBarProps> = ({
       </div>
 
       {/* Unified Filter Controls */}
-      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+      <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 sm:gap-2">
         
         {/* Categorias Dropdown Button */}
         <div className="relative" ref={dropdownRef}>
