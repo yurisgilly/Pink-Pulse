@@ -1,8 +1,9 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { useERP } from '@/contexts/erp.context';
-import { Bell, Server, Menu } from 'lucide-react';
+import { Bell, Server, Menu, Home } from 'lucide-react';
 
 export interface HeaderProps {
   onToggleMobileSidebar?: () => void;
@@ -43,6 +44,17 @@ export const Header: React.FC<HeaderProps> = ({ onToggleMobileSidebar }) => {
 
       {/* Right: Actions, database & Notifications */}
       <div className="flex items-center gap-2 sm:gap-4">
+        {/* Return to Home / Catálogo VIP Button */}
+        <Link
+          href="/catalogo"
+          id="btn-go-to-home-catalog"
+          className="flex items-center gap-1.5 px-3 sm:px-4 py-2.5 bg-gradient-to-r from-[#EC0E78]/20 to-[#FF4FA0]/20 hover:from-[#EC0E78] hover:to-[#FF4FA0] text-[#FF4FA0] hover:text-white border border-[#EC0E78]/40 hover:border-[#EC0E78] transition-all text-[10px] font-mono-custom uppercase font-bold tracking-wider rounded-[4px] cursor-pointer shadow-sm group shrink-0"
+          title="Ir para o Catálogo VIP (Home)"
+        >
+          <Home className="w-3.5 h-3.5 group-hover:scale-110 transition-transform text-[#FF4FA0] group-hover:text-white" />
+          <span className="hidden sm:inline">Catálogo VIP</span>
+        </Link>
+
         {/* Sync Indicator */}
         <button
           id="btn-sync-erp"

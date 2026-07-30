@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useERP, ActiveTab } from '@/contexts/erp.context';
 import logoImg from '@/assets/sem coraçao.png';
 import { 
+  Home,
   LayoutDashboard, 
   ShoppingBag, 
   FileText,
@@ -58,17 +59,38 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     >
       <div>
         {/* Logo Section */}
-        <div id="sidebar-logo" className="flex items-center justify-center mb-6 border-b border-[rgba(242,239,235,0.1)] pb-4 overflow-hidden">
-          <div className="relative w-full h-[170px] flex items-center justify-center">
+        <div 
+          id="sidebar-logo" 
+          onClick={() => {
+            router.push('/catalogo');
+            if (onClose) onClose();
+          }}
+          className="flex items-center justify-center mb-4 border-b border-[rgba(242,239,235,0.1)] pb-3 overflow-hidden cursor-pointer group" 
+          title="Ir para o Catálogo VIP"
+        >
+          <div className="relative w-full h-[160px] flex items-center justify-center">
             <Image 
               src={logoImg} 
               alt="Pink Pulse Logo" 
-              className="object-contain max-h-[300px] w-full h-auto scale-105 hover:scale-110 transition-transform duration-300"
+              className="object-contain max-h-[300px] w-full h-auto scale-105 group-hover:scale-110 transition-transform duration-300"
               priority
               referrerPolicy="no-referrer"
             />
           </div>
         </div>
+
+        {/* Return to VIP Catalog Button */}
+        <button
+          id="btn-sidebar-go-home"
+          onClick={() => {
+            router.push('/catalogo');
+            if (onClose) onClose();
+          }}
+          className="w-full mb-3 flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-[#EC0E78]/20 to-[#FF4FA0]/20 hover:from-[#EC0E78] hover:to-[#FF4FA0] border border-[#EC0E78]/40 hover:border-[#EC0E78] text-[#FF4FA0] hover:text-white font-bold text-[11px] uppercase font-mono-custom tracking-wider rounded-[10px] transition-all duration-200 cursor-pointer group"
+        >
+          <Home className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+          <span>Ver Catálogo VIP</span>
+        </button>
 
         {/* Navigation Menu Links */}
         <nav className="space-y-1.5" id="sidebar-navigation">
