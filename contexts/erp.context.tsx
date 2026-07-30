@@ -561,26 +561,34 @@ export const ERPProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     stockMovementReason?: string
   ): Promise<boolean> => {
     if (!isSupabaseConfigured || !supabase) {
-      setProducts(prev => prev.map(p => {
-        if (p.id === id) {
-          return {
-            ...p,
-            name: updates.name,
-            barcode: updates.barcode,
-            brand: updates.brand,
-            category_id: updates.category_id,
-            supplier_id: updates.supplier_id,
-            buy_price: updates.buy_price,
-            sell_price: updates.sell_price,
-            stock: updates.stock,
-            min_stock: updates.min_stock,
-            expiry_date: updates.expiry_date || undefined,
-            image_url: updates.image_url || p.image_url,
-            description: updates.description ?? p.description
-          };
+      setProducts(prev => {
+        const next = prev.map(p => {
+          if (p.id === id) {
+            return {
+              ...p,
+              name: updates.name,
+              barcode: updates.barcode,
+              brand: updates.brand,
+              category_id: updates.category_id,
+              supplier_id: updates.supplier_id,
+              buy_price: updates.buy_price,
+              sell_price: updates.sell_price,
+              stock: updates.stock,
+              min_stock: updates.min_stock,
+              expiry_date: updates.expiry_date || undefined,
+              image_url: updates.image_url || p.image_url,
+              description: updates.description !== undefined ? updates.description : p.description
+            };
+          }
+          return p;
+        });
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.setItem('pink_pulse_products', JSON.stringify(next));
+          } catch (e) {}
         }
-        return p;
-      }));
+        return next;
+      });
       return true;
     }
 

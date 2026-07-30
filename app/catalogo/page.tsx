@@ -22,25 +22,28 @@ export default function PublicCatalogPage() {
   const [selectedCategorySlug, setSelectedCategorySlug] = useState<string | null>(null);
   const [featuredTab, setFeaturedTab] = useState<'all' | 'mais_vendidos' | 'lancamentos' | 'promocoes' | 'novidades'>('all');
 
-  const loadCatalogData = async () => {
-    setLoading(true);
-    try {
-      const [pData, cData] = await Promise.all([
-        fetchPublicProducts(),
-        fetchPublicCategories()
-      ]);
-      setProducts(pData);
-      setCategories(cData);
-      setSettings(getPublicCatalogSettings());
-    } catch (err) {
-      console.error('Erro ao carregar catálogo público:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    loadCatalogData();
+    let active = true;
+    (async () => {
+      try {
+        const [pData, cData] = await Promise.all([
+          fetchPublicProducts(),
+          fetchPublicCategories()
+        ]);
+        if (active) {
+          setProducts(pData);
+          setCategories(cData);
+          setSettings(getPublicCatalogSettings());
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error('Erro ao carregar catálogo público:', err);
+        if (active) setLoading(false);
+      }
+    })();
+    return () => {
+      active = false;
+    };
   }, []);
 
   // Filtered products calculation

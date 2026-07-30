@@ -75,23 +75,31 @@ export class ProductsRepository {
     const oldStock = currentProduct?.stock ?? updates.stock;
     const stockDiff = updates.stock - oldStock;
 
+    const updatePayload: Record<string, any> = {
+      name: updates.name,
+      barcode: updates.barcode || null,
+      brand: updates.brand || null,
+      category_id: updates.category_id,
+      supplier_id: updates.supplier_id,
+      buy_price: updates.buy_price,
+      sell_price: updates.sell_price,
+      stock: updates.stock,
+      min_stock: updates.min_stock,
+      expiry_date: updates.expiry_date || null,
+      updated_at: new Date().toISOString()
+    };
+
+    if (updates.image_url !== undefined) {
+      updatePayload.image_url = updates.image_url;
+    }
+
+    if (updates.description !== undefined) {
+      updatePayload.description = updates.description;
+    }
+
     const { error } = await supabase
       .from('products')
-      .update({
-        name: updates.name,
-        barcode: updates.barcode || null,
-        brand: updates.brand || null,
-        category_id: updates.category_id,
-        supplier_id: updates.supplier_id,
-        buy_price: updates.buy_price,
-        sell_price: updates.sell_price,
-        stock: updates.stock,
-        min_stock: updates.min_stock,
-        expiry_date: updates.expiry_date || null,
-        image_url: updates.image_url,
-        description: updates.description || null,
-        updated_at: new Date().toISOString()
-      })
+      .update(updatePayload)
       .eq('id', productId);
 
     if (error) {

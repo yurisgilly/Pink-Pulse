@@ -43,6 +43,7 @@ export const StockView: React.FC = () => {
   const [adjustStock, setAdjustStock] = useState<number>(0);
   const [adjustMinStock, setAdjustMinStock] = useState<number>(5);
   const [adjustExpiry, setAdjustExpiry] = useState('');
+  const [adjustDescription, setAdjustDescription] = useState('');
   const [adjustReason, setAdjustReason] = useState('adjustment');
   const [adjustSelectedFile, setAdjustSelectedFile] = useState<File | null>(null);
   const [adjustPreviewUrl, setAdjustPreviewUrl] = useState<string>('');
@@ -61,6 +62,7 @@ export const StockView: React.FC = () => {
     setAdjustStock(product.stock || 0);
     setAdjustMinStock(product.min_stock || 0);
     setAdjustExpiry(product.expiry_date || '');
+    setAdjustDescription(product.description || '');
     setAdjustReason('adjustment');
     setAdjustSelectedFile(null);
     setAdjustPreviewUrl(product.image_url || '');
@@ -115,7 +117,8 @@ export const StockView: React.FC = () => {
           stock: Number(adjustStock),
           min_stock: Number(adjustMinStock),
           expiry_date: adjustExpiry || undefined,
-          image_url: finalImageUrl
+          image_url: finalImageUrl,
+          description: adjustDescription
         },
         adjustReason
       );
@@ -719,6 +722,16 @@ export const StockView: React.FC = () => {
                     className="w-full px-4 py-3 bg-[rgba(242,239,235,0.03)] border border-[rgba(242,239,235,0.1)] focus:border-[#E6007E] text-xs text-[#f2efeb] outline-none rounded-[4px]"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-mono-custom font-bold text-[#E6007E] uppercase tracking-wider mb-2">Descrição do Produto (Opcional)</label>
+                <textarea 
+                  value={adjustDescription} 
+                  onChange={e => setAdjustDescription(e.target.value)} 
+                  placeholder="Descrição detalhada do produto..." 
+                  className="w-full px-4 py-3 bg-[rgba(242,239,235,0.03)] border border-[rgba(242,239,235,0.1)] focus:border-[#E6007E] text-xs text-[#f2efeb] outline-none rounded-[4px] min-h-[75px]"
+                />
               </div>
 
               <div>
