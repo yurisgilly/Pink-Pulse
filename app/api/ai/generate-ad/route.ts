@@ -1,10 +1,96 @@
 import { GoogleGenAI } from "@google/genai";
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from "next/server";
+
+// Simple in-memory rate limiter per IP window (15 requests per 1 minute)
+const rateLimitMap = new Map<string, { count: number; lastReset: number }>();
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const windowMs = 60 * 1000; // 1 minute
+  const maxRequests = 15;
+
+  const current = rateLimitMap.get(ip);
+  if (!current || now - current.lastReset > windowMs) {
+    rateLimitMap.set(ip, { count: 1, lastReset: now });
+    return true;
+  }
+
+  if (current.count >= maxRequests) {
+    return false;
+  }
+
+  current.count++;
+  return true;
+}
 
 export async function POST(req: NextRequest) {
   try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return NextResponse.json(
+        { error: "Não autorizado. Autenticação não configurada." },
+        { status: 401 }
+      );
+    }
+
+    const cookieStore = await cookies();
+    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            );
+          } catch {
+            // Handled gracefully in route handlers
+          }
+        },
+      },
+    });
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json(
+        { error: "Não autorizado. Autenticação necessária." },
+        { status: 401 }
+      );
+    }
+
+    const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0] || "127.0.0.1";
+    if (!checkRateLimit(clientIp)) {
+      return NextResponse.json(
+        { error: "Limite de requisições excedido. Por favor, aguarde um minuto." },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
-    const { productName, productDescription, productPrice, style } = body;
+    const rawProductName = typeof body.productName === 'string' ? body.productName : '';
+    const rawProductDesc = typeof body.productDescription === 'string' ? body.productDescription : '';
+    const rawStyle = typeof body.style === 'string' ? body.style : 'Elegante';
+    const productPrice = body.productPrice;
+
+    // Sanitize and constrain input lengths to prevent prompt injection and buffer abuse
+    const productName = rawProductName.slice(0, 150).replace(/[<>{}]/g, '').trim();
+    const productDescription = rawProductDesc.slice(0, 1000).replace(/[<>{}]/g, '').trim();
+    const style = rawStyle.slice(0, 50).replace(/[<>{}]/g, '').trim();
+
+    if (!productName) {
+      return NextResponse.json(
+        { error: "O nome do produto é obrigatório." },
+        { status: 400 }
+      );
+    }
 
     const formattedPrice = typeof productPrice === 'number'
       ? `R$ ${productPrice.toFixed(2).replace('.', ',')}`

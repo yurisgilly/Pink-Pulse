@@ -18,19 +18,34 @@ export class ProductsRepository {
     if (!isSupabaseConfigured || !supabase) {
       throw new Error('Supabase is not configured or initialized.');
     }
-    const sku = `PP-${product.name.slice(0, 4).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`;
-    const { data, error } = await supabase.from('products').insert([{ ...product, sku }]).select().single();
+
+    const safeName = (product.name || '').slice(0, 150).trim();
+    if (!safeName) {
+      throw new Error('O nome do produto é obrigatório.');
+    }
+
+    const safeProduct = {
+      ...product,
+      name: safeName,
+      buy_price: Math.max(0, isNaN(Number(product.buy_price)) ? 0 : Number(product.buy_price)),
+      sell_price: Math.max(0, isNaN(Number(product.sell_price)) ? 0 : Number(product.sell_price)),
+      stock: Math.max(0, Math.floor(isNaN(Number(product.stock)) ? 0 : Number(product.stock))),
+      min_stock: Math.max(0, Math.floor(isNaN(Number(product.min_stock)) ? 0 : Number(product.min_stock))),
+    };
+
+    const sku = `PP-${safeName.slice(0, 4).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`;
+    const { data, error } = await supabase.from('products').insert([{ ...safeProduct, sku }]).select().single();
     if (error || !data) {
       throw new Error(`Error creating product in Supabase: ${error?.message || 'No data returned'}`);
     }
 
-    if (product.stock > 0) {
+    if (safeProduct.stock > 0) {
       const validUserId = await getValidUserId(null);
       const { error: mError } = await supabase.from('stock_movements').insert([{
         product_id: data.id,
         user_id: validUserId,
         type: 'in',
-        quantity: product.stock,
+        quantity: safeProduct.stock,
         reason: 'adjustment',
         notes: 'Estoque inicial de cadastro.'
       }]);
@@ -39,7 +54,7 @@ export class ProductsRepository {
       }
     }
 
-    await ERPRepository.addLog('Produto Criado', 'Estoque', `Produto ${product.name} (SKU: ${sku}) adicionado ao Supabase com ${product.stock} un.`);
+    await ERPRepository.addLog('Produto Criado', 'Estoque', `Produto ${safeName} (SKU: ${sku}) adicionado ao Supabase com ${safeProduct.stock} un.`);
     return data as Product;
   }
 

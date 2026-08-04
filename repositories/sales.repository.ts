@@ -56,6 +56,24 @@ export class SalesRepository {
       throw new Error('Supabase is not configured or initialized.');
     }
 
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return { success: false, error: 'A venda deve conter pelo menos um item.' };
+    }
+
+    const safeDiscount = Math.max(0, isNaN(Number(discountAmount)) ? 0 : Number(discountAmount));
+
+    // Validar quantidades e preços recebidos
+    for (const item of items) {
+      const qty = Number(item.quantity);
+      const price = Number(item.unitPrice);
+      if (!item.productId || isNaN(qty) || qty <= 0 || !Number.isInteger(qty)) {
+        return { success: false, error: 'Quantidade de item inválida. Deve ser um número inteiro positivo.' };
+      }
+      if (isNaN(price) || price < 0 || !isFinite(price)) {
+        return { success: false, error: 'Preço unitário do produto inválido.' };
+      }
+    }
+
     // 1. Validar estoques antes de qualquer coisa usando dados reais do banco
     const products = await ProductsRepository.getProducts();
     for (const item of items) {
@@ -68,15 +86,17 @@ export class SalesRepository {
       }
     }
 
-    const totalAmount = items.reduce((acc, item) => acc + item.quantity * item.unitPrice, 0) - discountAmount;
+    const rawTotal = items.reduce((acc, item) => acc + (Number(item.quantity) * Number(item.unitPrice)), 0);
+    const totalAmount = Math.max(0, rawTotal - safeDiscount);
     const validUserId = await getValidUserId(userId);
+    const validCustomerId = customerId && customerId.trim() !== '' ? customerId : null;
 
     // Registrar no Supabase Real
     const { data: saleData, error: saleErr } = await supabase.from('sales').insert([{
       user_id: validUserId,
-      customer_id: customerId || null,
-      total_amount: Math.max(0, totalAmount),
-      discount_amount: discountAmount,
+      customer_id: validCustomerId,
+      total_amount: totalAmount,
+      discount_amount: safeDiscount,
       payment_method: paymentMethod
     }]).select().single();
 

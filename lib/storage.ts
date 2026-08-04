@@ -1,6 +1,7 @@
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
 /**
@@ -9,9 +10,8 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
  */
 export function validateImageFile(file: File): string | null {
   const fileType = file.type.toLowerCase();
-  // Check extension if file.type is empty or generic
-  const ext = file.name.split('.').pop()?.toLowerCase();
-  const isValidMime = ALLOWED_MIME_TYPES.includes(fileType) || ['jpg', 'jpeg', 'png', 'webp'].includes(ext || '');
+  const ext = file.name.split('.').pop()?.toLowerCase() || '';
+  const isValidMime = ALLOWED_MIME_TYPES.includes(fileType) && ALLOWED_EXTENSIONS.includes(ext);
 
   if (!isValidMime) {
     return 'Formato de imagem inválido. Apenas arquivos JPG, JPEG, PNG e WEBP são permitidos.';
@@ -39,8 +39,9 @@ export async function uploadImageToStorage(
   // 1. Try uploading to Supabase Storage if configured
   if (isSupabaseConfigured && supabase) {
     try {
-      const fileExt = file.name.split('.').pop()?.toLowerCase() || 'jpg';
-      const cleanFileName = file.name.substring(0, file.name.lastIndexOf('.')).replace(/[^a-zA-Z0-9]/g, '_');
+      const rawExt = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+      const fileExt = ALLOWED_EXTENSIONS.includes(rawExt) ? rawExt : 'jpg';
+      const cleanFileName = file.name.substring(0, file.name.lastIndexOf('.')).replace(/[^a-zA-Z0-9]/g, '_').slice(0, 50);
       const fileName = `${Date.now()}_${cleanFileName}.${fileExt}`;
       const filePath = fileName;
 
@@ -49,8 +50,10 @@ export async function uploadImageToStorage(
         try {
           const pathParts = oldFilePath.split(`${bucket}/`);
           if (pathParts.length > 1) {
-            const relativeOldPath = pathParts[1].split('?')[0];
-            await supabase.storage.from(bucket).remove([relativeOldPath]);
+            const relativeOldPath = pathParts[1].split('?')[0].replace(/\.\./g, '').replace(/^\/+/, '');
+            if (relativeOldPath) {
+              await supabase.storage.from(bucket).remove([relativeOldPath]);
+            }
           }
         } catch (removeErr) {
           console.warn('[Storage] Não foi possível remover a imagem antiga:', removeErr);
