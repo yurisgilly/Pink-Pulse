@@ -1,5 +1,6 @@
 import { supabase, isSupabaseConfigured, getValidUserId } from '@/lib/supabase';
 import { Category, Supplier, Customer, Log } from '@/types/erp.types';
+import { logger } from '@/lib/logger';
 
 export class ERPRepository {
   // --- LOGS ---
@@ -15,7 +16,7 @@ export class ERPRepository {
       action,
       module,
       details
-    }]).select().single();
+    }]).select('id, user_id, action, module, details, created_at').single();
 
     if (error || !data) {
       throw new Error(`Error adding log in Supabase: ${error?.message || 'No data returned'}`);
@@ -30,7 +31,7 @@ export class ERPRepository {
     }
     const { data, error } = await supabase
       .from('logs')
-      .select('*')
+      .select('id, user_id, action, module, details, created_at')
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -48,7 +49,7 @@ export class ERPRepository {
     if (!isSupabaseConfigured || !supabase) {
       throw new Error('Supabase is not configured or initialized.');
     }
-    const { data, error } = await supabase.from('categories').select('*').order('name');
+    const { data, error } = await supabase.from('categories').select('id, name, description, created_at').order('name');
     if (error) {
       throw new Error(`Error fetching categories from Supabase: ${error.message}`);
     }
@@ -59,7 +60,7 @@ export class ERPRepository {
     if (!isSupabaseConfigured || !supabase) {
       throw new Error('Supabase is not configured or initialized.');
     }
-    const { data, error } = await supabase.from('categories').insert([{ name, description }]).select().single();
+    const { data, error } = await supabase.from('categories').insert([{ name, description }]).select('id, name, description, created_at').single();
     if (error || !data) {
       throw new Error(`Error creating category in Supabase: ${error?.message || 'No data returned'}`);
     }
@@ -72,7 +73,7 @@ export class ERPRepository {
     if (!isSupabaseConfigured || !supabase) {
       throw new Error('Supabase is not configured or initialized.');
     }
-    const { data, error } = await supabase.from('suppliers').select('*').order('name');
+    const { data, error } = await supabase.from('suppliers').select('id, name, cnpj, phone, email, address, created_at').order('name');
     if (error) {
       throw new Error(`Error fetching suppliers from Supabase: ${error.message}`);
     }
@@ -83,7 +84,7 @@ export class ERPRepository {
     if (!isSupabaseConfigured || !supabase) {
       throw new Error('Supabase is not configured or initialized.');
     }
-    const { data, error } = await supabase.from('suppliers').insert([supplier]).select().single();
+    const { data, error } = await supabase.from('suppliers').insert([supplier]).select('id, name, cnpj, phone, email, address, created_at').single();
     if (error || !data) {
       throw new Error(`Error creating supplier in Supabase: ${error?.message || 'No data returned'}`);
     }
@@ -97,7 +98,7 @@ export class ERPRepository {
     }
     const { error } = await supabase.from('suppliers').delete().eq('id', id);
     if (error) {
-      console.error('Erro ao deletar fornecedor no Supabase:', error.message);
+      logger.error('Erro ao deletar fornecedor no Supabase:', error.message);
       return false;
     }
     await this.addLog('Fornecedor Excluído', 'Fornecedores', `Fornecedor ID ${id} excluído do Supabase.`);
@@ -109,7 +110,7 @@ export class ERPRepository {
     if (!isSupabaseConfigured || !supabase) {
       throw new Error('Supabase is not configured or initialized.');
     }
-    const { data, error } = await supabase.from('customers').select('*').order('name');
+    const { data, error } = await supabase.from('customers').select('id, name, email, phone, document, birthday, notes, created_at').order('name');
     if (error) {
       throw new Error(`Error fetching customers from Supabase: ${error.message}`);
     }
@@ -120,7 +121,7 @@ export class ERPRepository {
     if (!isSupabaseConfigured || !supabase) {
       throw new Error('Supabase is not configured or initialized.');
     }
-    const { data, error } = await supabase.from('customers').insert([customer]).select().single();
+    const { data, error } = await supabase.from('customers').insert([customer]).select('id, name, email, phone, document, birthday, notes, created_at').single();
     if (error || !data) {
       throw new Error(`Error creating customer in Supabase: ${error?.message || 'No data returned'}`);
     }
@@ -142,7 +143,7 @@ export class ERPRepository {
 
     const { error } = await supabase.from('customers').update(updateObj).eq('id', id);
     if (error) {
-      console.error('Erro ao atualizar cliente no Supabase:', error.message);
+      logger.error('Erro ao atualizar cliente no Supabase:', error.message);
       return false;
     }
     await this.addLog('Cliente Atualizado', 'Clientes', `Cliente ${customerData.name || id} atualizado no Supabase.`);

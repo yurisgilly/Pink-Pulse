@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useERP } from '@/contexts/erp.context';
 import { PublicCatalogSettings } from '@/types/public-catalog.types';
 import { getPublicCatalogSettings, savePublicCatalogSettings } from '@/lib/public-catalog';
@@ -347,10 +348,13 @@ export const PublicCatalogAdmin: React.FC = () => {
 
             {/* Generated QR Code representation */}
             <div className="bg-white p-6 rounded-2xl mx-auto inline-block shadow-xl">
-              <img
+              <Image
                 src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(catalogFullUrl)}`}
                 alt="QR Code Catálogo Pink Pulse"
-                className="w-48 h-48 mx-auto"
+                width={192}
+                height={192}
+                className="mx-auto"
+                unoptimized
               />
             </div>
 

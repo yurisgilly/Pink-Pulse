@@ -217,10 +217,11 @@ export const CatalogOverview: React.FC<CatalogOverviewProps> = ({
           <div className="relative flex flex-col sm:flex-row items-center justify-between border-b border-white/15 pb-6 pt-2 gap-4">
             {/* Centered Large Logo with transparent background */}
             <div className="flex-1 flex justify-center items-center w-full">
-              <img 
-                src={logoImg.src} 
+              <Image 
+                src={logoImg} 
                 alt="Pink Pulse Logo" 
-                className="h-24 sm:h-32 md:h-36 object-contain drop-shadow-[0_6px_20px_rgba(236,14,120,0.65)]" 
+                className="h-24 sm:h-32 md:h-36 w-auto object-contain drop-shadow-[0_6px_20px_rgba(236,14,120,0.65)]" 
+                priority
               />
             </div>
 
@@ -248,16 +249,18 @@ export const CatalogOverview: React.FC<CatalogOverviewProps> = ({
                   {/* Foto */}
                   <div className="aspect-square rounded-[16px] overflow-hidden bg-[#111113] border border-white/10 flex items-center justify-center relative">
                     {p.image_url ? (
-                      <img 
+                      <Image 
                         src={p.image_url} 
                         alt={p.name} 
-                        className="w-full h-full object-cover"
+                        fill
+                        sizes="(max-width: 768px) 50vw, 25vw"
+                        className="object-cover"
                         referrerPolicy="no-referrer"
                       />
                     ) : (
                       <div className="text-center p-3 flex flex-col items-center justify-center gap-1">
-                        <img 
-                          src={logoImg.src} 
+                        <Image 
+                          src={logoImg} 
                           alt="Logo Placeholder" 
                           className="w-10 h-10 object-contain opacity-80" 
                         />
@@ -294,7 +297,7 @@ export const CatalogOverview: React.FC<CatalogOverviewProps> = ({
           {/* Catalog Footer */}
           <div className="border-t border-white/10 pt-6 flex flex-wrap items-center justify-between text-xs text-white/50 font-mono-custom uppercase tracking-wider gap-4">
             <div className="flex items-center gap-2">
-              <img src={logoImg.src} alt="Logo Footer" className="w-5 h-5 object-contain opacity-70" />
+              <Image src={logoImg} alt="Logo Footer" className="w-5 h-5 object-contain opacity-70" />
               <span>PINK PULSE  • CATÁLOGO OFICIAL DE VENDAS</span>
             </div>
             <span>PRODUTOS DISPONÍVEIS MEDIANTE CONSULTA</span>

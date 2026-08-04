@@ -1,13 +1,17 @@
 import { supabase, isSupabaseConfigured, getValidUserId } from '@/lib/supabase';
 import { Product, StockMovement, Alert } from '@/types/erp.types';
 import { ERPRepository } from './erp.repository';
+import { logger } from '@/lib/logger';
 
 export class ProductsRepository {
   static async getProducts(): Promise<Product[]> {
     if (!isSupabaseConfigured || !supabase) {
       throw new Error('Supabase is not configured or initialized.');
     }
-    const { data, error } = await supabase.from('products').select('*').order('name');
+    const { data, error } = await supabase
+      .from('products')
+      .select('id, sku, barcode, name, brand, category_id, supplier_id, buy_price, sell_price, stock, min_stock, expiry_date, image_url, created_at, updated_at')
+      .order('name');
     if (error) {
       throw new Error(`Error fetching products from Supabase: ${error.message}`);
     }
@@ -50,7 +54,7 @@ export class ProductsRepository {
         notes: 'Estoque inicial de cadastro.'
       }]);
       if (mError) {
-        console.error('Error inserting initial stock movement:', mError.message);
+        logger.error('Error inserting initial stock movement:', mError.message);
       }
     }
 
@@ -106,10 +110,6 @@ export class ProductsRepository {
 
     if (updates.image_url !== undefined) {
       updatePayload.image_url = updates.image_url;
-    }
-
-    if (updates.description !== undefined) {
-      updatePayload.description = updates.description;
     }
 
     const { error } = await supabase
@@ -207,7 +207,7 @@ export class ProductsRepository {
     }
     const { data, error } = await supabase
       .from('stock_movements')
-      .select('*, products(name)')
+      .select('id, product_id, user_id, type, quantity, reason, notes, created_at, products(name)')
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -226,7 +226,7 @@ export class ProductsRepository {
     }
     const { data, error } = await supabase
       .from('alerts')
-      .select('*')
+      .select('id, type, message, severity, resolved, related_id, created_at')
       .eq('resolved', false)
       .order('created_at', { ascending: false });
 
@@ -277,7 +277,7 @@ export class ProductsRepository {
     }
     const { error } = await supabase
       .from('products')
-      .update({ active: false })
+      .delete()
       .eq('id', productId);
 
     if (error) {

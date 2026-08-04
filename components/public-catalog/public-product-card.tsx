@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { MessageCircle, Eye, ShieldCheck, Tag } from 'lucide-react';
 import { PublicProduct } from '@/types/public-catalog.types';
 import { generateWhatsAppPurchaseUrl } from '@/lib/public-catalog';
@@ -35,10 +36,12 @@ export const PublicProductCard: React.FC<PublicProductCardProps> = ({
       {/* Image & Badge Header */}
       <div className="relative aspect-square rounded-[18px] overflow-hidden bg-[#0F0B11] border border-white/10 flex items-center justify-center mb-4">
         {product.image_url ? (
-          <img
+          <Image
             src={product.image_url}
             alt={product.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
             referrerPolicy="no-referrer"
           />
         ) : (

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { PublicProduct, PublicCatalogSettings } from '@/types/public-catalog.types';
 import { fetchPublicProducts, getPublicCatalogSettings, generateWhatsAppPurchaseUrl } from '@/lib/public-catalog';
 import { PublicHeader } from '@/components/public-catalog/public-header';
@@ -142,11 +143,14 @@ export default function PublicProductDetailPage() {
               {/* Main Image */}
               <div className="relative aspect-square rounded-[28px] overflow-hidden bg-[#18111A] border border-white/15 flex items-center justify-center shadow-[0_16px_40px_rgba(0,0,0,0.5)]">
                 {selectedImage ? (
-                  <img
+                  <Image
                     src={selectedImage}
                     alt={product.name}
-                    className="w-full h-full object-cover"
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="object-cover"
                     referrerPolicy="no-referrer"
+                    priority
                   />
                 ) : (
                   <div className="p-8 text-center">
@@ -175,11 +179,11 @@ export default function PublicProductDetailPage() {
                     <button
                       key={idx}
                       onClick={() => setSelectedImage(imgUrl)}
-                      className={`w-20 h-20 rounded-2xl overflow-hidden border-2 transition-all shrink-0 cursor-pointer ${
+                      className={`relative w-20 h-20 rounded-2xl overflow-hidden border-2 transition-all shrink-0 cursor-pointer ${
                         selectedImage === imgUrl ? 'border-[#EC0E78] scale-105 shadow-md' : 'border-white/10 opacity-60 hover:opacity-100'
                       }`}
                     >
-                      <img src={imgUrl} alt="" className="w-full h-full object-cover" />
+                      <Image src={imgUrl} alt="" fill sizes="80px" className="object-cover" referrerPolicy="no-referrer" />
                     </button>
                   ))}
                 </div>
