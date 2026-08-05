@@ -1,188 +1,53 @@
 import { CatalogReview, ReviewStatus, CatalogViewStats } from '@/types/public-catalog.types';
 import { isSupabaseConfigured, supabase } from './supabase';
 
-const VIEWS_KEY = 'pink_pulse_catalog_views';
-const REVIEWS_KEY = 'pink_pulse_catalog_reviews';
-
-// Sample initial reviews if local storage is empty
-const DEFAULT_REVIEWS: CatalogReview[] = [
-  {
-    id: 'rev-1',
-    name: 'Fernanda M.',
-    rating: 5,
-    comment: 'Atendimento incrível e embalagem 100% discreta! Os produtos chegaram super rápido e bem embalados.',
-    status: 'approved',
-    created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
-  },
-  {
-    id: 'rev-2',
-    name: 'Juliana Santos',
-    rating: 5,
-    comment: 'Produtos de altíssima qualidade! A entrega foi super rápida e o atendimento via WhatsApp é fantástico.',
-    status: 'approved',
-    created_at: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString()
-  },
-  {
-    id: 'rev-3',
-    name: 'Camila R.',
-    rating: 4,
-    comment: 'Amei o sabonete íntimo e o óleo corporal velvet. Embalagem sofisticada e cheirinho maravilhoso!',
-    status: 'approved',
-    created_at: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000).toISOString()
-  },
-  {
-    id: 'rev-4',
-    name: 'Anônimo VIP',
-    rating: 5,
-    comment: 'Excelente loja! Super discreto na fatura do cartão e a entrega via motoboy foi impecável.',
-    status: 'approved',
-    created_at: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString()
-  },
-  {
-    id: 'rev-5',
-    name: 'Beatriz C.',
-    rating: 5,
-    comment: 'Adorei os lançamentos do catálogo público! Gostaria de saber quando chega a nova coleção de lingeries.',
-    status: 'pending',
-    created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
-  }
-];
-
-// Helper to get local views
-function getLocalViews(): { id: string; timestamp: string; date_str: string }[] {
-  if (typeof window === 'undefined') return [];
-  try {
-    const saved = localStorage.getItem(VIEWS_KEY);
-    if (saved) return JSON.parse(saved);
-  } catch (e) {
-    console.error('Error reading catalog views from local storage:', e);
-  }
-  
-  // Initialize sample history views for demo mode if empty
-  const sampleViews: { id: string; timestamp: string; date_str: string }[] = [];
-  const now = new Date();
-  
-  // Seed sample views across past 14 days
-  const dailyDistribution = [47, 52, 38, 41, 60, 44, 44, 39, 50, 48, 55, 62, 70, 47];
-  dailyDistribution.forEach((count, daysAgoIndex) => {
-    const targetDate = new Date(now.getTime() - daysAgoIndex * 24 * 60 * 60 * 1000);
-    const dateStr = targetDate.toISOString().split('T')[0];
-    for (let i = 0; i < count; i++) {
-      sampleViews.push({
-        id: `view-${daysAgoIndex}-${i}`,
-        timestamp: targetDate.toISOString(),
-        date_str: dateStr
-      });
-    }
-  });
-
-  try {
-    localStorage.setItem(VIEWS_KEY, JSON.stringify(sampleViews));
-  } catch (e) {}
-
-  return sampleViews;
-}
-
-// Helper to save local views
-function saveLocalViews(views: { id: string; timestamp: string; date_str: string }[]): void {
-  if (typeof window === 'undefined') return;
-  try {
-    localStorage.setItem(VIEWS_KEY, JSON.stringify(views));
-  } catch (e) {
-    console.error('Error saving catalog views to local storage:', e);
-  }
-}
-
-// Helper to get local reviews
-function getLocalReviews(): CatalogReview[] {
-  if (typeof window === 'undefined') return DEFAULT_REVIEWS;
-  try {
-    const saved = localStorage.getItem(REVIEWS_KEY);
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-    }
-  } catch (e) {
-    console.error('Error reading catalog reviews from local storage:', e);
-  }
-  // Initialize default sample reviews
-  try {
-    localStorage.setItem(REVIEWS_KEY, JSON.stringify(DEFAULT_REVIEWS));
-  } catch (e) {}
-  return DEFAULT_REVIEWS;
-}
-
-// Helper to save local reviews
-function saveLocalReviews(reviews: CatalogReview[]): void {
-  if (typeof window === 'undefined') return;
-  try {
-    localStorage.setItem(REVIEWS_KEY, JSON.stringify(reviews));
-  } catch (e) {
-    console.error('Error saving catalog reviews to local storage:', e);
-  }
-}
-
 // ==========================================
 // 1. CATALOG VIEW COUNTER FUNCTIONS
 // ==========================================
 
 /**
- * Records a catalog view access. Uses session storage to prevent continuous
- * page refreshes in the same session from inflating view counts.
+ * Records a real catalog view access directly in Supabase catalog_views table.
+ * NO session locking or local storage fallback.
  */
 export async function recordCatalogView(): Promise<void> {
   if (typeof window === 'undefined') return;
 
-  // Session deduplication check (30 min window or session duration)
-  const sessionRecordedKey = 'pink_pulse_catalog_view_session';
-  const lastRecorded = sessionStorage.getItem(sessionRecordedKey);
-  const now = Date.now();
-
-  if (lastRecorded) {
-    const elapsed = now - parseInt(lastRecorded, 10);
-    // If recorded less than 15 minutes ago in this session, skip increment
-    if (elapsed < 15 * 60 * 1000) {
-      return;
-    }
+  if (!isSupabaseConfigured || !supabase) {
+    console.warn('[Catalog Analytics] Supabase is not configured. Unable to record catalog view.');
+    return;
   }
-
-  sessionStorage.setItem(sessionRecordedKey, now.toString());
 
   const todayStr = new Date().toISOString().split('T')[0];
-  const newViewObj = {
-    id: `view-${now}-${Math.random().toString(36).substring(2, 7)}`,
-    timestamp: new Date().toISOString(),
-    date_str: todayStr
-  };
 
-  // Try Supabase first if configured
-  if (isSupabaseConfigured && supabase) {
-    try {
-      const { error } = await supabase.from('catalog_views').insert([{
-        date_str: todayStr
-      }]);
-      if (error) {
-        console.warn('[Catalog Analytics] Supabase error recording view, saving locally:', error.message);
-        const views = getLocalViews();
-        views.push(newViewObj);
-        saveLocalViews(views);
-      }
-      return;
-    } catch (err) {
-      console.warn('[Catalog Analytics] Exception recording view on Supabase:', err);
+  try {
+    const { error } = await supabase.from('catalog_views').insert([{
+      date_str: todayStr
+    }]);
+
+    if (error) {
+      console.error('[Catalog Analytics] Error recording catalog view to Supabase:', error.message);
     }
+  } catch (err: any) {
+    console.error('[Catalog Analytics] Exception recording catalog view to Supabase:', err);
   }
-
-  // Local Storage Fallback
-  const views = getLocalViews();
-  views.push(newViewObj);
-  saveLocalViews(views);
 }
 
 /**
- * Gets view counter metrics exclusively for the Admin Panel.
+ * Gets real view counter metrics exclusively from Supabase catalog_views for the Admin Panel.
+ * If Supabase returns 0 records or fails, zero metrics are returned without mock data.
  */
 export async function getCatalogViewStats(): Promise<CatalogViewStats> {
+  const now = new Date();
+  const todayStr = now.toISOString().split('T')[0];
+
+  // Prepare default empty 14-day daily trend map
+  const dailyTrendMap: Record<string, number> = {};
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+    const dateKey = d.toISOString().split('T')[0];
+    dailyTrendMap[dateKey] = 0;
+  }
+
   let allViews: { timestamp: string; date_str: string }[] = [];
 
   if (isSupabaseConfigured && supabase) {
@@ -191,24 +56,18 @@ export async function getCatalogViewStats(): Promise<CatalogViewStats> {
         .from('catalog_views')
         .select('created_at, date_str');
       
-      if (!error && data && data.length > 0) {
+      if (error) {
+        console.error('[Catalog Analytics] Error fetching catalog_views from Supabase:', error.message);
+      } else if (data) {
         allViews = data.map((item: any) => ({
           timestamp: item.created_at || new Date().toISOString(),
           date_str: item.date_str || (item.created_at ? item.created_at.split('T')[0] : new Date().toISOString().split('T')[0])
         }));
-      } else {
-        allViews = getLocalViews();
       }
-    } catch (err) {
-      console.warn('[Catalog Analytics] Fallback to local views:', err);
-      allViews = getLocalViews();
+    } catch (err: any) {
+      console.error('[Catalog Analytics] Exception fetching catalog_views from Supabase:', err);
     }
-  } else {
-    allViews = getLocalViews();
   }
-
-  const now = new Date();
-  const todayStr = now.toISOString().split('T')[0];
 
   const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
   const currentYear = now.getFullYear();
@@ -218,14 +77,6 @@ export async function getCatalogViewStats(): Promise<CatalogViewStats> {
   let last7DaysCount = 0;
   let thisMonthCount = 0;
   const totalCount = allViews.length;
-
-  // Daily map for trend chart (last 14 days)
-  const dailyTrendMap: Record<string, number> = {};
-  for (let i = 13; i >= 0; i--) {
-    const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
-    const dateKey = d.toISOString().split('T')[0];
-    dailyTrendMap[dateKey] = 0;
-  }
 
   allViews.forEach(v => {
     const vDate = new Date(v.timestamp || v.date_str);
@@ -253,7 +104,7 @@ export async function getCatalogViewStats(): Promise<CatalogViewStats> {
   });
 
   const dailyTrend = Object.entries(dailyTrendMap).map(([date, views]) => {
-    const [year, month, day] = date.split('-');
+    const [, month, day] = date.split('-');
     return {
       date,
       formattedDate: `${day}/${month}`,
@@ -275,7 +126,7 @@ export async function getCatalogViewStats(): Promise<CatalogViewStats> {
 // ==========================================
 
 /**
- * Fetches approved reviews for public catalog display.
+ * Fetches approved reviews from Supabase catalog_reviews for public display.
  */
 export async function getApprovedCatalogReviews(): Promise<{
   reviews: CatalogReview[];
@@ -292,16 +143,14 @@ export async function getApprovedCatalogReviews(): Promise<{
         .eq('status', 'approved')
         .order('created_at', { ascending: false });
 
-      if (!error && data) {
+      if (error) {
+        console.error('[Catalog Analytics] Error fetching approved reviews from Supabase:', error.message);
+      } else if (data) {
         reviews = data as CatalogReview[];
-      } else {
-        reviews = getLocalReviews().filter(r => r.status === 'approved');
       }
-    } catch (err) {
-      reviews = getLocalReviews().filter(r => r.status === 'approved');
+    } catch (err: any) {
+      console.error('[Catalog Analytics] Exception fetching approved reviews from Supabase:', err);
     }
-  } else {
-    reviews = getLocalReviews().filter(r => r.status === 'approved');
   }
 
   const totalCount = reviews.length;
@@ -316,7 +165,7 @@ export async function getApprovedCatalogReviews(): Promise<{
 }
 
 /**
- * Fetches ALL reviews for Admin Panel moderation (pending, approved, hidden).
+ * Fetches ALL reviews directly from Supabase catalog_reviews for Admin Panel moderation.
  */
 export async function getAllCatalogReviews(): Promise<CatalogReview[]> {
   if (isSupabaseConfigured && supabase) {
@@ -326,117 +175,121 @@ export async function getAllCatalogReviews(): Promise<CatalogReview[]> {
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (!error && data) {
+      if (error) {
+        console.error('[Catalog Analytics] Error fetching all catalog_reviews from Supabase:', error.message);
+        return [];
+      }
+      if (data) {
         return data as CatalogReview[];
       }
-    } catch (err) {
-      console.warn('[Catalog Analytics] Exception fetching reviews from Supabase:', err);
+    } catch (err: any) {
+      console.error('[Catalog Analytics] Exception fetching catalog_reviews from Supabase:', err);
+      return [];
     }
   }
-  return getLocalReviews().sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  return [];
 }
 
 /**
- * Submits a new review from the public catalog. Default status is always 'pending'.
+ * Submits a new review to Supabase catalog_reviews. Default status is MANDATORY 'pending'.
  */
 export async function submitCatalogReview(input: {
   name: string;
   rating: number;
   comment: string;
 }): Promise<CatalogReview> {
-  const newReview: CatalogReview = {
+  if (!isSupabaseConfigured || !supabase) {
+    throw new Error('O Supabase não está configurado. Não é possível enviar avaliações no momento.');
+  }
+
+  const name = input.name.trim() || 'Cliente VIP';
+  const rating = Math.min(5, Math.max(1, input.rating));
+  const comment = input.comment.trim();
+
+  const reviewObject: CatalogReview = {
     id: `rev-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-    name: input.name.trim() || 'Cliente VIP',
-    rating: Math.min(5, Math.max(1, input.rating)),
-    comment: input.comment.trim(),
-    status: 'pending', // MANDATORY DEFAULT SECURITY RULE
+    name,
+    rating,
+    comment,
+    status: 'pending',
     created_at: new Date().toISOString()
   };
 
-  if (isSupabaseConfigured && supabase) {
-    try {
-      const { data, error } = await supabase
-        .from('catalog_reviews')
-        .insert([{
-          name: newReview.name,
-          rating: newReview.rating,
-          comment: newReview.comment,
-          status: 'pending'
-        }])
-        .select()
-        .single();
+  try {
+    // Pure INSERT without .select() because public users only have SELECT permission on 'approved' reviews.
+    // Chaining .select() on a 'pending' review triggers an RLS violation on the returning SELECT check.
+    const { error } = await supabase
+      .from('catalog_reviews')
+      .insert([{
+        name,
+        rating,
+        comment,
+        status: 'pending' // MANDATORY DEFAULT SECURITY RULE
+      }]);
 
-      if (!error && data) {
-        return data as CatalogReview;
-      } else {
-        console.warn('[Catalog Analytics] Error submitting review to Supabase, saving locally:', error?.message);
-      }
-    } catch (err) {
-      console.warn('[Catalog Analytics] Exception submitting review:', err);
+    if (error) {
+      console.error('[Catalog Analytics] Error submitting review to Supabase:', error.message);
+      throw new Error(error.message);
     }
-  }
 
-  // Local Storage Fallback
-  const reviews = getLocalReviews();
-  reviews.unshift(newReview);
-  saveLocalReviews(reviews);
-  return newReview;
+    return reviewObject;
+  } catch (err: any) {
+    console.error('[Catalog Analytics] Exception submitting review to Supabase:', err);
+    throw err;
+  }
 }
 
 /**
- * Updates review status (approve, hide, set pending). Admin operation.
+ * Updates review status (approved, hidden, pending) directly in Supabase catalog_reviews.
  */
 export async function updateCatalogReviewStatus(
   id: string, 
   status: ReviewStatus
 ): Promise<boolean> {
-  if (isSupabaseConfigured && supabase) {
-    try {
-      const { error } = await supabase
-        .from('catalog_reviews')
-        .update({ status })
-        .eq('id', id);
+  if (!isSupabaseConfigured || !supabase) {
+    throw new Error('O Supabase não está configurado. Não é possível alterar o status da avaliação.');
+  }
 
-      if (error) {
-        console.warn('[Catalog Analytics] Supabase review status update error:', error.message);
-      }
-    } catch (err) {
-      console.warn('[Catalog Analytics] Exception updating review status:', err);
+  try {
+    const { error } = await supabase
+      .from('catalog_reviews')
+      .update({ status })
+      .eq('id', id);
+
+    if (error) {
+      console.error('[Catalog Analytics] Supabase review status update error:', error.message);
+      throw new Error(error.message);
     }
-  }
 
-  // Always update local storage as well for fallback consistency
-  const reviews = getLocalReviews();
-  const idx = reviews.findIndex(r => r.id === id);
-  if (idx !== -1) {
-    reviews[idx].status = status;
-    saveLocalReviews(reviews);
     return true;
+  } catch (err: any) {
+    console.error('[Catalog Analytics] Exception updating review status in Supabase:', err);
+    throw err;
   }
-  return false;
 }
 
 /**
- * Deletes a review permanently. Admin operation.
+ * Permanently deletes a review directly from Supabase catalog_reviews.
  */
 export async function deleteCatalogReview(id: string): Promise<boolean> {
-  if (isSupabaseConfigured && supabase) {
-    try {
-      const { error } = await supabase
-        .from('catalog_reviews')
-        .delete()
-        .eq('id', id);
-
-      if (error) {
-        console.warn('[Catalog Analytics] Supabase review delete error:', error.message);
-      }
-    } catch (err) {
-      console.warn('[Catalog Analytics] Exception deleting review:', err);
-    }
+  if (!isSupabaseConfigured || !supabase) {
+    throw new Error('O Supabase não está configurado. Não é possível excluir a avaliação.');
   }
 
-  const reviews = getLocalReviews();
-  const updated = reviews.filter(r => r.id !== id);
-  saveLocalReviews(updated);
-  return true;
+  try {
+    const { error } = await supabase
+      .from('catalog_reviews')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('[Catalog Analytics] Supabase review delete error:', error.message);
+      throw new Error(error.message);
+    }
+
+    return true;
+  } catch (err: any) {
+    console.error('[Catalog Analytics] Exception deleting review from Supabase:', err);
+    throw err;
+  }
 }

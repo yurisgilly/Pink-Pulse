@@ -24,10 +24,15 @@ export default function PublicCatalogPage() {
   const [selectedCategorySlug, setSelectedCategorySlug] = useState<string | null>(null);
   const [featuredTab, setFeaturedTab] = useState<'all' | 'mais_vendidos' | 'lancamentos' | 'promocoes' | 'novidades'>('all');
 
+  const hasRecordedRef = React.useRef(false);
+
   useEffect(() => {
     let active = true;
-    // Record catalog view access (deduplicated by session)
-    recordCatalogView();
+    
+    if (!hasRecordedRef.current) {
+      hasRecordedRef.current = true;
+      recordCatalogView();
+    }
 
     (async () => {
       try {

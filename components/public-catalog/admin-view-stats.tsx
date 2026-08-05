@@ -60,7 +60,7 @@ export const CatalogViewStatsAdmin: React.FC = () => {
               </span>
             </h3>
             <p className="text-xs text-white/60 font-mono-custom">
-              Métricas exclusivas do administrador com desduplicação por sessão de visitante.
+              Métricas em tempo real de contagem de acessos obtidas diretamente do Supabase.
             </p>
           </div>
         </div>
