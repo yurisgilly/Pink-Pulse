@@ -226,12 +226,12 @@ export const CatalogReviewsModerationAdmin: React.FC = () => {
                     </span>
 
                     {/* Star Rating */}
-                    <div className="flex items-center gap-0.5 text-amber-400">
+                    <div className="flex items-center gap-0.5 text-[#FF4FA0]">
                       {[1, 2, 3, 4, 5].map((s) => (
                         <Star
                           key={s}
-                          className={`w-3.5 h-3.5 ${
-                            s <= rev.rating ? 'fill-amber-400 text-amber-400' : 'text-white/20'
+                          className={`w-3.5 h-3.5 transition-all ${
+                            s <= rev.rating ? 'fill-[#FF4FA0] text-[#FF4FA0] drop-shadow-[0_0_6px_rgba(255,79,160,0.8)]' : 'text-white/20'
                           }`}
                         />
                       ))}

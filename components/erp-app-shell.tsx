@@ -18,8 +18,6 @@ import UsersView from '@/components/users-view';
 import ReceiptsView from '@/components/receipts-view';
 import CatalogView from '@/components/catalog-view';
 import PublicCatalogAdmin from '@/components/public-catalog-admin';
-import { FloatingWhatsapp } from '@/components/public-catalog/floating-whatsapp';
-import { getPublicCatalogSettings } from '@/lib/public-catalog';
 
 interface ERPAppShellProps {
   initialTab?: ActiveTab;
@@ -122,9 +120,6 @@ function ERPContent({ initialTab = 'dashboard' }: ERPAppShellProps) {
           {renderActiveScreen()}
         </main>
       </div>
-
-      {/* Floating WhatsApp Button */}
-      <FloatingWhatsapp whatsappNumber={getPublicCatalogSettings().whatsappNumber} />
     </div>
   );
 }

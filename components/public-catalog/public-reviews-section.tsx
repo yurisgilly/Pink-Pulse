@@ -123,20 +123,25 @@ export const PublicReviewsSection: React.FC = () => {
 
           {/* Average Rating Display */}
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1 text-amber-400">
+            <div className="flex items-center gap-1 text-[#FF4FA0]">
               {[1, 2, 3, 4, 5].map((star) => (
                 <Star
                   key={star}
-                  className={`w-4 h-4 ${
-                    star <= Math.round(averageRating) ? 'fill-amber-400 text-amber-400' : 'text-white/20'
+                  className={`w-4 h-4 transition-all duration-300 ${
+                    star <= Math.round(averageRating)
+                      ? 'fill-[#FF4FA0] text-[#FF4FA0] drop-shadow-[0_0_8px_rgba(255,79,160,0.8)] animate-pulse'
+                      : 'text-white/20'
                   }`}
                 />
               ))}
             </div>
 
-            <span className="text-sm font-bold text-white font-mono-custom">
-              ⭐ <strong className="text-[#FF4FA0]">{averageRating.toFixed(1)}</strong> de 5 —{' '}
-              <span className="text-white/70">{totalCount} {totalCount === 1 ? 'avaliação' : 'avaliações'}</span>
+            <span className="text-sm font-bold text-white font-mono-custom inline-flex items-center gap-1.5">
+              <Star className="w-4 h-4 fill-[#FF4FA0] text-[#FF4FA0] drop-shadow-[0_0_10px_rgba(255,79,160,0.9)] inline-block shrink-0" />
+              <span>
+                <strong className="text-[#FF4FA0]">{averageRating.toFixed(1)}</strong> de 5 —{' '}
+                <span className="text-white/70">{totalCount} {totalCount === 1 ? 'avaliação' : 'avaliações'}</span>
+              </span>
             </span>
           </div>
         </div>
@@ -186,12 +191,14 @@ export const PublicReviewsSection: React.FC = () => {
                       <h4 className="text-xs font-bold text-white truncate max-w-[140px] sm:max-w-[180px]">
                         {rev.name}
                       </h4>
-                      <div className="flex items-center gap-1 text-amber-400 mt-0.5">
+                      <div className="flex items-center gap-1 text-[#FF4FA0] mt-0.5">
                         {[1, 2, 3, 4, 5].map((s) => (
                           <Star
                             key={s}
-                            className={`w-3 h-3 ${
-                              s <= rev.rating ? 'fill-amber-400 text-amber-400' : 'text-white/20'
+                            className={`w-3.5 h-3.5 transition-all duration-300 ${
+                              s <= rev.rating
+                                ? 'fill-[#FF4FA0] text-[#FF4FA0] drop-shadow-[0_0_6px_rgba(255,79,160,0.8)]'
+                                : 'text-white/20'
                             }`}
                           />
                         ))}
@@ -296,15 +303,15 @@ export const PublicReviewsSection: React.FC = () => {
                         className="p-1 cursor-pointer transition-transform hover:scale-125 focus:outline-none"
                       >
                         <Star
-                          className={`w-7 h-7 transition-colors ${
+                          className={`w-7 h-7 transition-all duration-300 ${
                             star <= (hoverRating || rating)
-                              ? 'fill-amber-400 text-amber-400'
-                              : 'text-white/20'
+                              ? 'fill-[#FF4FA0] text-[#FF4FA0] drop-shadow-[0_0_10px_rgba(255,79,160,0.9)] scale-110'
+                              : 'text-white/20 hover:text-white/40'
                           }`}
                         />
                       </button>
                     ))}
-                    <span className="text-xs font-bold text-[#FF4FA0] font-mono-custom ml-2">
+                    <span className="text-xs font-bold text-[#FF4FA0] font-mono-custom ml-2 animate-pulse">
                       {hoverRating || rating} / 5
                     </span>
                   </div>
