@@ -3,10 +3,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { PublicProduct, PublicCategory, PublicCatalogSettings } from '@/types/public-catalog.types';
 import { fetchPublicProducts, fetchPublicCategories, getPublicCatalogSettings } from '@/lib/public-catalog';
+import { recordCatalogView } from '@/lib/catalog-analytics';
 import { PublicHeader } from '@/components/public-catalog/public-header';
 import { PublicBanner } from '@/components/public-catalog/public-banner';
 import { PublicFilterBar } from '@/components/public-catalog/public-filter-bar';
 import { PublicProductCard } from '@/components/public-catalog/public-product-card';
+import { PublicReviewsSection } from '@/components/public-catalog/public-reviews-section';
 import { PublicFooter } from '@/components/public-catalog/public-footer';
 import { FloatingWhatsapp } from '@/components/public-catalog/floating-whatsapp';
 import { Sparkles, Filter, Package, Flame, Star, Gift, Tag, RefreshCw } from 'lucide-react';
@@ -24,6 +26,9 @@ export default function PublicCatalogPage() {
 
   useEffect(() => {
     let active = true;
+    // Record catalog view access (deduplicated by session)
+    recordCatalogView();
+
     (async () => {
       try {
         const [pData, cData] = await Promise.all([
@@ -174,6 +179,9 @@ export default function PublicCatalogPage() {
               ))}
             </div>
           )}
+
+          {/* Customer Reviews & Ratings Section */}
+          <PublicReviewsSection />
 
         </main>
       </div>

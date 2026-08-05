@@ -45,3 +45,22 @@ export interface PublicCatalogSettings {
   featuredCategoryIds: string[];
   featuredProductIds: string[];
 }
+
+export type ReviewStatus = 'pending' | 'approved' | 'hidden';
+
+export interface CatalogReview {
+  id: string;
+  name: string;
+  rating: number;
+  comment: string;
+  status: ReviewStatus;
+  created_at: string;
+}
+
+export interface CatalogViewStats {
+  today: number;
+  last7Days: number;
+  thisMonth: number;
+  total: number;
+  dailyTrend: { date: string; formattedDate: string; views: number }[];
+}

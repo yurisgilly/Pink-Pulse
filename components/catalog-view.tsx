@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import Image from 'next/image';
 import { useERP } from '@/contexts/erp.context';
 import { Product } from '@/types/erp.types';
 import { ProductDetailModal } from '@/components/product-detail-modal';
@@ -366,12 +365,10 @@ export const CatalogView: React.FC = () => {
                 {/* Image Container */}
                 <div className="relative aspect-square rounded-[18px] overflow-hidden bg-[#111113] border border-white/10 flex items-center justify-center mb-4">
                   {p.image_url ? (
-                    <Image 
+                    <img 
                       src={p.image_url} 
                       alt={p.name} 
-                      fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       referrerPolicy="no-referrer"
                     />
                   ) : (
@@ -480,12 +477,8 @@ export const CatalogView: React.FC = () => {
                   return (
                     <tr key={p.id} className="hover:bg-[#1F0D19]/40 transition-colors">
                       <td className="p-4">
-                        <div className="relative w-12 h-12 rounded-[10px] bg-[#111113] overflow-hidden border border-white/10">
-                          {p.image_url ? (
-                            <Image src={p.image_url} alt={p.name} fill sizes="48px" className="object-cover" referrerPolicy="no-referrer" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-[#FF4FA0] font-bold text-[8px] uppercase">Pink</div>
-                          )}
+                        <div className="w-12 h-12 rounded-[10px] bg-[#111113] overflow-hidden border border-white/10">
+                          <img src={p.image_url || ''} alt={p.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                         </div>
                       </td>
                       <td className="p-4 font-bold text-sm text-white">

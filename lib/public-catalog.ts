@@ -2,7 +2,6 @@ import { PublicProduct, PublicCategory, PublicCatalogSettings } from '@/types/pu
 import { Product, Category } from '@/types/erp.types';
 import { DEFAULT_PRODUCTS, DEFAULT_CATEGORIES } from './default-data';
 import { isSupabaseConfigured, supabase } from './supabase';
-import { logger } from './logger';
 
 const SETTINGS_KEY = 'pink_pulse_public_catalog_settings';
 
@@ -122,11 +121,10 @@ export async function fetchPublicProducts(): Promise<PublicProduct[]> {
     if (isSupabaseConfigured && supabase) {
       const { data: pData } = await supabase
         .from('products')
-        .select('id, sku, barcode, name, brand, category_id, supplier_id, buy_price, sell_price, stock, min_stock, expiry_date, image_url, created_at, updated_at')
+        .select('*')
+        .eq('active', true)
         .order('name');
-      const { data: cData } = await supabase
-        .from('categories')
-        .select('id, name, description, created_at');
+      const { data: cData } = await supabase.from('categories').select('*');
 
       rawProducts = (pData || []) as Product[];
       rawCategories = (cData || []) as Category[];
@@ -179,10 +177,7 @@ export async function fetchPublicCategories(): Promise<PublicCategory[]> {
     let rawCategories: Category[] = [];
 
     if (isSupabaseConfigured && supabase) {
-      const { data } = await supabase
-        .from('categories')
-        .select('id, name, description, created_at')
-        .order('name');
+      const { data } = await supabase.from('categories').select('*').order('name');
       rawCategories = (data || []) as Category[];
     } else {
       if (typeof window !== 'undefined') {

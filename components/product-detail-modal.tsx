@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import Image from 'next/image';
 import { Product, Category, Supplier } from '@/types/erp.types';
 import { useERP } from '@/contexts/erp.context';
 import { 
@@ -171,12 +170,10 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           <div className="md:col-span-5 space-y-4">
             <div className="relative aspect-square rounded-[22px] overflow-hidden bg-black/50 border border-white/15 flex items-center justify-center shadow-inner group">
               {activeImage || imageUrl ? (
-                <Image 
+                <img 
                   src={activeImage || imageUrl} 
                   alt={name} 
-                  fill
-                  sizes="(max-width: 768px) 100vw, 400px"
-                  className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                   referrerPolicy="no-referrer"
                 />
               ) : (
@@ -375,19 +372,13 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   }}
                   className="p-3 bg-black/40 border border-white/10 hover:border-[#EC0E78]/50 rounded-[18px] space-y-2 cursor-pointer transition-all hover:scale-[1.02] group"
                 >
-                  <div className="relative aspect-square rounded-[14px] bg-black/60 overflow-hidden">
-                    {p.image_url ? (
-                      <Image 
-                        src={p.image_url} 
-                        alt={p.name} 
-                        fill
-                        sizes="100px"
-                        className="object-cover group-hover:scale-105 transition-transform" 
-                        referrerPolicy="no-referrer"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-[#FF4FA0] font-bold text-[8px] uppercase">Pink</div>
-                    )}
+                  <div className="aspect-square rounded-[14px] bg-black/60 overflow-hidden">
+                    <img 
+                      src={p.image_url || ''} 
+                      alt={p.name} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
+                      referrerPolicy="no-referrer"
+                    />
                   </div>
                   <h4 className="text-xs font-bold text-white truncate">{p.name}</h4>
                   <span className="text-xs font-extrabold text-[#FF4FA0] font-display block">

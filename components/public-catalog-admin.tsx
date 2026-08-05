@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
 import { useERP } from '@/contexts/erp.context';
 import { PublicCatalogSettings } from '@/types/public-catalog.types';
 import { getPublicCatalogSettings, savePublicCatalogSettings } from '@/lib/public-catalog';
 import { 
   Globe, Share2, QrCode, Power, Image as ImageIcon, MessageCircle, Save, Check, Copy, ExternalLink, Sparkles, Layers, RefreshCw 
 } from 'lucide-react';
+import { CatalogViewStatsAdmin } from '@/components/public-catalog/admin-view-stats';
+import { CatalogReviewsModerationAdmin } from '@/components/public-catalog/admin-reviews-moderation';
 
 export const PublicCatalogAdmin: React.FC = () => {
   const { products, categories } = useERP();
@@ -110,6 +111,12 @@ export const PublicCatalogAdmin: React.FC = () => {
         </div>
 
       </div>
+
+      {/* 1. Admin Exclusive View Statistics */}
+      <CatalogViewStatsAdmin />
+
+      {/* 2. Admin Reviews & Comments Moderation */}
+      <CatalogReviewsModerationAdmin />
 
       {/* Main Settings Form Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -348,13 +355,10 @@ export const PublicCatalogAdmin: React.FC = () => {
 
             {/* Generated QR Code representation */}
             <div className="bg-white p-6 rounded-2xl mx-auto inline-block shadow-xl">
-              <Image
+              <img
                 src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(catalogFullUrl)}`}
                 alt="QR Code Catálogo Pink Pulse"
-                width={192}
-                height={192}
-                className="mx-auto"
-                unoptimized
+                className="w-48 h-48 mx-auto"
               />
             </div>
 

@@ -2,7 +2,6 @@ import { supabase, isSupabaseConfigured, getValidUserId } from '@/lib/supabase';
 import { Sale, SaleItem, Debt, PaymentMethod } from '@/types/erp.types';
 import { ProductsRepository } from './products.repository';
 import { ERPRepository } from './erp.repository';
-import { logger } from '@/lib/logger';
 
 export class SalesRepository {
   static async getSales(): Promise<Sale[]> {
@@ -11,7 +10,7 @@ export class SalesRepository {
     }
     const { data, error } = await supabase
       .from('sales')
-      .select('id, user_id, customer_id, total_amount, discount_amount, payment_method, created_at, customers(name)')
+      .select('*, customers(name)')
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -33,7 +32,7 @@ export class SalesRepository {
     }
     const { data, error } = await supabase
       .from('sale_items')
-      .select('id, sale_id, product_id, quantity, unit_price, total_price, created_at, products(name)')
+      .select('*, products(name)')
       .eq('sale_id', saleId);
 
     if (error) {
@@ -99,7 +98,7 @@ export class SalesRepository {
       total_amount: totalAmount,
       discount_amount: safeDiscount,
       payment_method: paymentMethod
-    }]).select('id, user_id, customer_id, total_amount, discount_amount, payment_method, created_at').single();
+    }]).select().single();
 
     if (saleErr || !saleData) {
       return { success: false, error: `Falha ao registrar a venda no Supabase: ${saleErr?.message || 'Erro desconhecido'}` };
@@ -148,7 +147,7 @@ export class SalesRepository {
       }]);
 
       if (alertErr) {
-        logger.error(`Erro ao criar alerta de devedor: ${alertErr.message}`);
+        console.error(`Erro ao criar alerta de devedor: ${alertErr.message}`);
       }
     }
 
@@ -162,7 +161,7 @@ export class SalesRepository {
     }
     const { data, error } = await supabase
       .from('customer_debts')
-      .select('id, customer_id, sale_id, amount, due_date, paid, created_at, customers(name)')
+      .select('*, customers(name)')
       .order('created_at', { ascending: false });
 
     if (error) {
