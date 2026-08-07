@@ -368,6 +368,8 @@ export const CatalogView: React.FC = () => {
                     <img 
                       src={p.image_url} 
                       alt={p.name} 
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       referrerPolicy="no-referrer"
                     />
@@ -478,7 +480,7 @@ export const CatalogView: React.FC = () => {
                     <tr key={p.id} className="hover:bg-[#1F0D19]/40 transition-colors">
                       <td className="p-4">
                         <div className="w-12 h-12 rounded-[10px] bg-[#111113] overflow-hidden border border-white/10">
-                          <img src={p.image_url || ''} alt={p.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                          <img src={p.image_url || ''} alt={p.name} loading="lazy" decoding="async" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                         </div>
                       </td>
                       <td className="p-4 font-bold text-sm text-white">

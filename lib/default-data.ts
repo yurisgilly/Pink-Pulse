@@ -23,7 +23,7 @@ export const DEFAULT_PRODUCTS: Product[] = [
     sell_price: 49.90,
     stock: 24,
     min_stock: 5,
-    image_url: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?q=80&w=800&auto=format&fit=crop',
+    image_url: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?q=75&w=500&auto=format&fit=crop',
     description: 'Gel vibratório e pulsante com efeito esquenta e esfria simultâneo. Fórmula premium dermatologicamente testada para experiências inesquecíveis.',
     active: true,
     created_at: new Date().toISOString()
@@ -40,7 +40,7 @@ export const DEFAULT_PRODUCTS: Product[] = [
     sell_price: 59.90,
     stock: 35,
     min_stock: 8,
-    image_url: 'https://images.unsplash.com/photo-1608248597260-2647c29377d2?q=80&w=800&auto=format&fit=crop',
+    image_url: 'https://images.unsplash.com/photo-1608248597260-2647c29377d2?q=75&w=500&auto=format&fit=crop',
     description: 'Lubrificante corporal à base de água com textura sedosa, sabor refinado de morango com champagne e hidratação prolongada sem grudar.',
     active: true,
     created_at: new Date().toISOString()
@@ -57,7 +57,7 @@ export const DEFAULT_PRODUCTS: Product[] = [
     sell_price: 189.90,
     stock: 12,
     min_stock: 3,
-    image_url: 'https://images.unsplash.com/photo-1583846783214-7229a91b20ed?q=80&w=800&auto=format&fit=crop',
+    image_url: 'https://images.unsplash.com/photo-1583846783214-7229a91b20ed?q=75&w=500&auto=format&fit=crop',
     description: 'Body em renda francesa de alta elasticidade com detalhes em tiras strappy e fechamento ajustável. Elegância e sedução na medida certa.',
     active: true,
     created_at: new Date().toISOString()
@@ -74,7 +74,7 @@ export const DEFAULT_PRODUCTS: Product[] = [
     sell_price: 119.90,
     stock: 18,
     min_stock: 4,
-    image_url: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?q=80&w=800&auto=format&fit=crop',
+    image_url: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?q=75&w=500&auto=format&fit=crop',
     description: 'Plug anatômico em metal polido cirúrgico com pedra de cristal lapidada em formato de coração violeta. Toque frio aveludado e visual espetacular.',
     active: true,
     created_at: new Date().toISOString()
@@ -91,7 +91,7 @@ export const DEFAULT_PRODUCTS: Product[] = [
     sell_price: 139.90,
     stock: 15,
     min_stock: 5,
-    image_url: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=800&auto=format&fit=crop',
+    image_url: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=75&w=500&auto=format&fit=crop',
     description: 'Anel duplo estimulador com motor turbo silencioso, silicone aveludado de grau médico e recarregável via USB magnético.',
     active: true,
     created_at: new Date().toISOString()
@@ -108,7 +108,7 @@ export const DEFAULT_PRODUCTS: Product[] = [
     sell_price: 79.90,
     stock: 20,
     min_stock: 5,
-    image_url: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?q=80&w=800&auto=format&fit=crop',
+    image_url: 'https://images.unsplash.com/photo-1603006905003-be475563bc59?q=75&w=500&auto=format&fit=crop',
     description: 'Vela dermatológica que derrete em óleo morno nutritivo de massagem. Perfume afrodisíaco relaxante com manteiga de karité e óleo de amêndoas.',
     active: true,
     created_at: new Date().toISOString()
@@ -125,7 +125,7 @@ export const DEFAULT_PRODUCTS: Product[] = [
     sell_price: 299.90,
     stock: 8,
     min_stock: 2,
-    image_url: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=800&auto=format&fit=crop',
+    image_url: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=75&w=500&auto=format&fit=crop',
     description: 'Kit completo contendo 1 Venda em Cetim Noir, 1 Gel Excitante, 1 Óleo Corporal Beijável e 1 Baralho de Desafios Sensoriais para casais.',
     active: true,
     created_at: new Date().toISOString()

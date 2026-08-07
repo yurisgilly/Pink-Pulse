@@ -103,7 +103,7 @@ export function sanitizeToPublicProduct(
     category_name: catName,
     category_slug: catSlug,
     sell_price: Number(p.sell_price || 0),
-    image_url: p.image_url || 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?q=80&w=800&auto=format&fit=crop',
+    image_url: p.image_url || 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?q=75&w=500&auto=format&fit=crop',
     images: p.image_url ? [p.image_url] : [],
     in_stock: p.stock > 0, // ONLY boolean exposed, never exact stock quantity!
     brand: p.brand || 'Pink Pulse',
@@ -113,18 +113,31 @@ export function sanitizeToPublicProduct(
   };
 }
 
-export async function fetchPublicProducts(): Promise<PublicProduct[]> {
+// Memory Cache to prevent repeated network requests on quick navigation
+let cachedPublicProducts: { data: PublicProduct[]; timestamp: number } | null = null;
+let cachedPublicCategories: { data: PublicCategory[]; timestamp: number } | null = null;
+const CACHE_TTL_MS = 60 * 1000; // 60 seconds
+
+export async function fetchPublicProducts(forceRefresh = false): Promise<PublicProduct[]> {
+  const now = Date.now();
+  if (!forceRefresh && cachedPublicProducts && (now - cachedPublicProducts.timestamp < CACHE_TTL_MS)) {
+    return cachedPublicProducts.data;
+  }
+
   try {
     let rawProducts: Product[] = [];
     let rawCategories: Category[] = [];
 
     if (isSupabaseConfigured && supabase) {
+      // Select ONLY fields needed for the public catalog projection
       const { data: pData } = await supabase
         .from('products')
-        .select('*')
+        .select('id, name, description, sell_price, image_url, stock, active, brand, category_id')
         .eq('active', true)
         .order('name');
-      const { data: cData } = await supabase.from('categories').select('*');
+      const { data: cData } = await supabase
+        .from('categories')
+        .select('id, name, description');
 
       rawProducts = (pData || []) as Product[];
       rawCategories = (cData || []) as Category[];
@@ -163,7 +176,9 @@ export async function fetchPublicProducts(): Promise<PublicProduct[]> {
     });
 
     // Sanitize to PublicProduct (STRICT PROJECTION OF SAFE FIELDS)
-    return activeProducts.map(p => sanitizeToPublicProduct(p, catMap));
+    const result = activeProducts.map(p => sanitizeToPublicProduct(p, catMap));
+    cachedPublicProducts = { data: result, timestamp: now };
+    return result;
   } catch (err) {
     console.error('Error fetching public products:', err);
     const catMap: Record<string, Category> = {};
@@ -172,12 +187,20 @@ export async function fetchPublicProducts(): Promise<PublicProduct[]> {
   }
 }
 
-export async function fetchPublicCategories(): Promise<PublicCategory[]> {
+export async function fetchPublicCategories(forceRefresh = false): Promise<PublicCategory[]> {
+  const now = Date.now();
+  if (!forceRefresh && cachedPublicCategories && (now - cachedPublicCategories.timestamp < CACHE_TTL_MS)) {
+    return cachedPublicCategories.data;
+  }
+
   try {
     let rawCategories: Category[] = [];
 
     if (isSupabaseConfigured && supabase) {
-      const { data } = await supabase.from('categories').select('*').order('name');
+      const { data } = await supabase
+        .from('categories')
+        .select('id, name, description')
+        .order('name');
       rawCategories = (data || []) as Category[];
     } else {
       if (typeof window !== 'undefined') {
@@ -208,7 +231,7 @@ export async function fetchPublicCategories(): Promise<PublicCategory[]> {
       'cosmeticos-oleos': '🧴',
     };
 
-    return rawCategories.map(c => {
+    const result = rawCategories.map(c => {
       const slug = slugify(c.name);
       const matchedKey = Object.keys(categoryIcons).find(k => slug.includes(k)) || '';
       const icon = categoryIcons[matchedKey] || '✨';
@@ -221,6 +244,8 @@ export async function fetchPublicCategories(): Promise<PublicCategory[]> {
         icon
       };
     });
+    cachedPublicCategories = { data: result, timestamp: now };
+    return result;
   } catch (err) {
     return DEFAULT_CATEGORIES.map(c => ({
       id: c.id,

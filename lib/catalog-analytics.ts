@@ -52,9 +52,11 @@ export async function getCatalogViewStats(): Promise<CatalogViewStats> {
 
   if (isSupabaseConfigured && supabase) {
     try {
+      const thirtyDaysAgoStr = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
       const { data, error } = await supabase
         .from('catalog_views')
-        .select('created_at, date_str');
+        .select('created_at, date_str')
+        .gte('date_str', thirtyDaysAgoStr);
       
       if (error) {
         console.error('[Catalog Analytics] Error fetching catalog_views from Supabase:', error.message);
@@ -139,7 +141,7 @@ export async function getApprovedCatalogReviews(): Promise<{
     try {
       const { data, error } = await supabase
         .from('catalog_reviews')
-        .select('*')
+        .select('id, name, rating, comment, status, created_at')
         .eq('status', 'approved')
         .order('created_at', { ascending: false });
 

@@ -251,6 +251,8 @@ export const CatalogOverview: React.FC<CatalogOverviewProps> = ({
                       <img 
                         src={p.image_url} 
                         alt={p.name} 
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover"
                         referrerPolicy="no-referrer"
                       />
